@@ -97,37 +97,49 @@ import { UserDto } from '../core/models/auth.model';
 
           <div class="sidebar-section">
             <label>Assignees</label>
-            @if (editingAssignees) {
-              <div class="member-checkboxes">
-                @for (member of members; track member.id) {
-                  <label class="checkbox-label">
-                    <input type="checkbox"
-                           [checked]="assigneeIds.has(member.id)"
-                           (change)="toggleAssignee(member.id)">
-                    {{ member.fullName }}
-                  </label>
+            <div class="assignee-dropdown" [class.open]="editingAssignees">
+              <div class="dropdown-trigger" (click)="editingAssignees ? null : startEditAssignees()">
+                <div class="selected-chips">
+                  @for (assignee of task.assignees; track assignee.id) {
+                    <span class="chip">
+                      <span class="avatar avatar-xs">{{ getInitials(assignee.fullName) }}</span>
+                      {{ assignee.fullName }}
+                      @if (editingAssignees) {
+                        <span class="chip-remove" (click)="toggleAssignee(assignee.id); $event.stopPropagation()">×</span>
+                      }
+                    </span>
+                  }
+                  @if (task.assignees.length === 0) {
+                    <span class="dropdown-placeholder">Click to assign...</span>
+                  }
+                </div>
+                @if (!editingAssignees) {
+                  <span class="material-icons dropdown-arrow">expand_more</span>
                 }
-                <div class="inline-actions">
+              </div>
+              @if (editingAssignees) {
+                <div class="dropdown-menu">
+                  <input class="dropdown-search" placeholder="Search members..." [(ngModel)]="assigneeSearch" [ngModelOptions]="{standalone: true}">
+                  @for (member of filteredMembers; track member.id) {
+                    <div class="dropdown-item" [class.selected]="assigneeIds.has(member.id)" (click)="toggleAssignee(member.id)">
+                      <span class="avatar avatar-sm">{{ getInitials(member.fullName) }}</span>
+                      <span class="dropdown-item-name">{{ member.fullName }}</span>
+                      <span class="member-role">{{ member.role }}</span>
+                      @if (assigneeIds.has(member.id)) {
+                        <span class="material-icons check-icon">check</span>
+                      }
+                    </div>
+                  }
+                  @if (filteredMembers.length === 0) {
+                    <div class="dropdown-empty">No members found</div>
+                  }
+                </div>
+                <div class="inline-actions" style="margin-top:6px">
                   <button class="btn btn-primary btn-sm" (click)="saveAssignees()">Save</button>
                   <button class="btn btn-outline btn-sm" (click)="editingAssignees = false">Cancel</button>
                 </div>
-              </div>
-            } @else {
-              <div class="assignee-list">
-                @for (assignee of task.assignees; track assignee.id) {
-                  <div class="assignee-item">
-                    <span class="avatar avatar-sm">{{ getInitials(assignee.fullName) }}</span>
-                    <span>{{ assignee.fullName }}</span>
-                  </div>
-                }
-                @if (task.assignees.length === 0) {
-                  <span class="text-muted">Unassigned</span>
-                }
-                <button class="btn btn-outline btn-sm" style="margin-top:6px" (click)="startEditAssignees()">
-                  <span class="material-icons" style="font-size:14px">edit</span> Edit
-                </button>
-              </div>
-            }
+              }
+            </div>
           </div>
 
           <div class="sidebar-section">
@@ -212,13 +224,43 @@ import { UserDto } from '../core/models/auth.model';
       span { font-size: 14px; }
     }
     .text-muted { color: var(--text-muted); font-size: 13px; }
-    .assignee-list { display: flex; flex-direction: column; gap: 6px; }
-    .assignee-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-    .member-checkboxes { display: flex; flex-direction: column; gap: 6px; }
-    .checkbox-label {
-      display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;
-      input { cursor: pointer; }
+    .assignee-dropdown { position: relative; }
+    .dropdown-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 36px; padding: 4px 8px; border: 1px solid var(--border);
+      border-radius: var(--radius); cursor: pointer; background: var(--surface);
+      &:hover { border-color: var(--primary); }
     }
+    .assignee-dropdown.open .dropdown-trigger { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+    .selected-chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; background: var(--primary); color: #fff;
+      border-radius: 12px; font-size: 12px; font-weight: 500;
+    }
+    .chip-remove { cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.8; &:hover { opacity: 1; } }
+    .avatar-xs { width: 18px; height: 18px; font-size: 8px; }
+    .dropdown-placeholder { color: var(--text-muted); font-size: 13px; padding: 2px 0; }
+    .dropdown-arrow { font-size: 20px; color: var(--text-muted); }
+    .dropdown-menu {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+      margin-top: 4px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-md); max-height: 180px; overflow-y: auto;
+    }
+    .dropdown-search {
+      width: 100%; padding: 8px 10px; border: none; border-bottom: 1px solid var(--border);
+      font-size: 13px; outline: none; background: transparent;
+    }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+      cursor: pointer; font-size: 13px;
+      &:hover { background: var(--bg); }
+      &.selected { background: rgba(99,102,241,0.08); }
+    }
+    .dropdown-item-name { flex: 1; }
+    .member-role { font-size: 11px; color: var(--text-muted); }
+    .check-icon { font-size: 16px; color: var(--primary); }
+    .dropdown-empty { padding: 12px; text-align: center; color: var(--text-muted); font-size: 13px; }
     .label-list { display: flex; flex-wrap: wrap; gap: 4px; }
     .label-tag { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 500; }
     hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
@@ -241,6 +283,7 @@ export class TaskDetailComponent implements OnInit {
   editDescription = '';
   editingAssignees = false;
   assigneeIds = new Set<number>();
+  assigneeSearch = '';
 
   private taskId!: number;
 
@@ -324,9 +367,16 @@ export class TaskDetailComponent implements OnInit {
     });
   }
 
+  get filteredMembers(): UserDto[] {
+    if (!this.assigneeSearch.trim()) return this.members;
+    const q = this.assigneeSearch.toLowerCase();
+    return this.members.filter(m => m.fullName.toLowerCase().includes(q) || m.role.toLowerCase().includes(q));
+  }
+
   startEditAssignees() {
     this.editingAssignees = true;
     this.assigneeIds = new Set(this.task!.assignees.map(a => a.id));
+    this.assigneeSearch = '';
   }
 
   toggleAssignee(userId: number) {
