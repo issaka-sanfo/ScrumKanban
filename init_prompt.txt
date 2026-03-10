@@ -1,0 +1,174 @@
+You are a senior full-stack software architect and developer.
+
+Your task is to generate a complete production-ready Agile Scrum Kanban Board application.
+
+The goal of the application is to help teams manage Scrum projects using a Kanban board with the following features:
+
+MAIN FEATURES
+- Create and manage Scrum Projects
+- Manage Product Backlog
+- Create Sprints
+- Drag & Drop Kanban Board
+- Task lifecycle (To Do, In Progress, Code Review, Done)
+- Assign tasks to users
+- Story points
+- Labels and priorities
+- Comments on tasks
+- Sprint progress tracking
+- Authentication (JWT)
+- Role management (ADMIN, SCRUM_MASTER, DEVELOPER)
+- Dashboard with sprint metrics
+- REST API documentation
+
+TECHNOLOGY STACK
+
+Architecture
+- Clean Architecture using Ports and Adapters (Ports / Services)
+- Domain Driven Design principles
+- Separation of:
+  - Domain
+  - Application
+  - Infrastructure
+  - Web
+
+Backend
+- Java 21
+- Spring Boot
+- Spring Data JPA
+- Spring Security + JWT
+- MapStruct
+- Flyway for database migrations
+- Lombok
+- OpenAPI (Swagger)
+
+Database
+- PostgreSQL
+
+Frontend
+- Angular (latest version)
+- Angular Material
+- RxJS
+- NgRx for state management
+- Drag and Drop using Angular CDK
+
+PROJECT STRUCTURE
+
+Backend structure must follow Ports/Services architecture:
+
+backend
+ ├── domain
+ │    ├── model
+ │    ├── repository (ports)
+ │    └── service (business rules)
+ │
+ ├── application
+ │    ├── usecases
+ │    ├── dto
+ │    └── mappers
+ │
+ ├── infrastructure
+ │    ├── persistence
+ │    │     ├── entities
+ │    │     ├── repositories
+ │    │     └── adapters
+ │    └── configuration
+ │
+ └── web
+      ├── controllers
+      └── security
+
+DATABASE SCHEMA
+
+Design tables for:
+
+- users
+- roles
+- projects
+- sprints
+- tasks
+- comments
+- labels
+- task_assignments
+
+KANBAN BOARD COLUMNS
+
+- Backlog
+- To Do
+- In Progress
+- Code Review
+- Testing
+- Done
+
+FRONTEND REQUIREMENTS
+
+Angular app must include:
+
+Modules
+- auth
+- dashboard
+- projects
+- sprints
+- kanban-board
+- tasks
+
+Pages
+- Login
+- Dashboard
+- Project List
+- Sprint Board
+- Kanban Board
+
+Kanban board features
+- Drag & Drop tasks
+- Task modal
+- Real-time column updates
+
+API DESIGN
+
+Create REST endpoints:
+
+Auth
+POST /auth/login
+POST /auth/register
+
+Projects
+GET /projects
+POST /projects
+
+Sprints
+GET /projects/{id}/sprints
+POST /projects/{id}/sprints
+
+Tasks
+GET /sprints/{id}/tasks
+POST /tasks
+PUT /tasks/{id}
+DELETE /tasks/{id}
+
+Kanban
+PUT /tasks/{id}/status
+
+DELIVERABLES
+
+Generate:
+
+1. Complete backend code
+2. Angular frontend code
+3. PostgreSQL schema
+4. Docker setup
+5. Docker compose (postgres + backend + frontend)
+6. Example data seed
+7. README with run instructions
+
+IMPORTANT
+
+Generate the project step-by-step:
+
+1. Backend architecture
+2. Domain model
+3. Database schema
+4. REST API
+5. Angular frontend
+6. Docker configuration
+
+Ensure clean, maintainable, and enterprise-grade code.
